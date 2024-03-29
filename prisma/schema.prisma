@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_PRISMA_URL")
+}
+
+model Usuario {
+  id       Int    @id @default(autoincrement())
+  nombre   String
+  email    String @unique
+  password String
+}
+
+model Alumno {
+  id          Int           @id @default(autoincrement())
+  dni         String        @unique
+  nombre      String
+  telefono    String        @unique
+  email       String        @unique
+  compras     Compra[]
+  alumnoClase AlumnoClase[]
+}
+
+model Compra {
+  id       Int      @id @default(autoincrement())
+  cantidad Int
+  fecha    DateTime
+
+  alumnoId Int
+  alumno   Alumno @relation(fields: [alumnoId], references: [id], onDelete: Cascade)
+}
+
+model Clase {
+  id          Int           @id @default(autoincrement())
+  fecha       DateTime
+  alumnoClase AlumnoClase[]
+
+  estiloClaseId Int
+  estiloClase   EstiloClase @relation(fields: [estiloClaseId], references: [id], onDelete: Cascade)
+}
+
+model AlumnoClase {
+  alumnoId Int
+  alumno   Alumno @relation(fields: [alumnoId], references: [id], onDelete: Cascade)
+
+  claseId Int
+  clase   Clase @relation(fields: [claseId], references: [id], onDelete: Cascade)
+
+  @@id([alumnoId, claseId])
+}
+
+model EstiloClase {
+  id     Int     @id @default(autoincrement())
+  nombre String
+  Clase  Clase[]
+}
